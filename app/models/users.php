@@ -7,6 +7,13 @@ class Users extends AppModel {
 			'foreignKey' => 'role_id'
 		)
 	);
+
+	var $hasOne = array(
+		'Aros' => array(
+			'foreignKey' => 'foreign_key'
+		)
+	);
+
 	var $table = 'users';
 
 	function parentNode() {

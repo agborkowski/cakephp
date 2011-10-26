@@ -1,6 +1,6 @@
 <?php
-class AroAco extends AppModel {
-	var $name = 'AroAco';
-	var $useTable = 'aros_acos';
+class Permissions extends AppModel {
+	var $name = 'Permissions';
+	var $table = 'aros_acos';
 	var $actsAs = array('Tree');
 }
