@@ -49,12 +49,14 @@ class RoleShell extends Shell {
 		$this->hr();
 		$this->out('Bath change');
 		$this->hr();
-		if($this->Aros->delete(5813)){
-			$this->out('user clean');
-		}else{
-			$this->out('user fail');
-		}
 		exit;
+// 		#delete
+// 		if($this->Aros->delete(5813)){
+// 			$this->out('user clean');
+// 		}else{
+// 			$this->out('user fail');
+// 		}
+		// #recovery
 		// $this->Users->save(array('Users' => array(
 		// 			'id' => 7980,
 		// 			'login' => 'dk7294',
@@ -193,7 +195,7 @@ class RoleShell extends Shell {
 	/**
 	 * Find User
 	 *
-	 * @return int user id
+	 * @return user array
 	 */
 	function _getUser($login){
 		$user = $this->Users->findByLogin($login);
@@ -213,7 +215,7 @@ class RoleShell extends Shell {
 			$node = $this->Aro->findByForeignKey($name['Users']['id']);
 			$name = "{$name['Users']['login']}[{$name['Users']['id']}]";
 		}else{
-			$node = $this->Aro->findByAlias(low($name));
+			$node = $this->Aro->findByAlias(strtolower($name));
 		}
 		if(!$node){
 			$this->err("Aro node by fk({$name}) not exist.");
@@ -242,7 +244,7 @@ class RoleShell extends Shell {
 				$this->out('[ok] user row recreate');
 				return $this->_getNode($user);
 			}else{
-				$this->err('[error] node created fail, try again');
+				$this->err('[error] node create fail, try again');
 				exit;
 			}
 		}else{
