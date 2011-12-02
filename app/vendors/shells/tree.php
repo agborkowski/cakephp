@@ -1,6 +1,6 @@
 <?php
 class TreeShell extends Shell {
-	var $uses = array ('Aro','Aco','AroAco');
+	var $uses = array ('Aros', 'Acos', 'Permissions');
 	/**
 	 * Verbose mode
 	 *

@@ -2,7 +2,7 @@
 
 class RoleShell extends Shell {
 
-	var $uses = array('Users','Aros','Acos');
+	var $uses = array('Users','Aros','Acos','Queues');
 	var $settings = array(
 		'login' => false,
 		'role' => false, // defalut users role - users
