@@ -99,7 +99,7 @@ class RoleShell extends Shell {
 		$this->out("{$user['Users']['id']}		{$user['Users']['login']}		{$user['Users']['role_id']}		{$user['Users']['enable']}		{$user['Roles']['name']}");
 
 		$userNode = $this->_getNode($user);
-		$roleNode = $this->_getNode($user['Roles']['name']);
+		$roleNode = $this->_getNode($user);
 
 		$this->out('# Aros (user)');
 		$this->out("id		parent		model		alias");
@@ -206,7 +206,7 @@ class RoleShell extends Shell {
 	}
 
 	/**
-	 * Find Aro node by userId
+	 * Find node by userId
 	 *
 	 * @return int role id
 	 */
@@ -214,6 +214,8 @@ class RoleShell extends Shell {
 		if(is_array($name)){
 			$node = $this->Aro->findByForeignKey($name['Users']['id']);
 			$name = "{$name['Users']['login']}[{$name['Users']['id']}]";
+		}elseif(is_numeric($name)){
+			$node = $this->Aro->findById($name);
 		}else{
 			$node = $this->Aro->findByAlias(strtolower($name));
 		}
