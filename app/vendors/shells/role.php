@@ -98,15 +98,17 @@ class RoleShell extends Shell {
 		$this->out("id		login		role_id		enable		role");
 		$this->out("{$user['Users']['id']}		{$user['Users']['login']}		{$user['Users']['role_id']}		{$user['Users']['enable']}		{$user['Roles']['name']}");
 
-		$userNode = $this->_getNode($user);
-		$roleNode = $this->_getNode($user);
+		$roleNode = $this->_getNode($user['Aros']['parent_id']);
 
 		$this->out('# Aros (user)');
 		$this->out("id		parent		model		alias");
-		$this->out("{$userNode['Aro']['id']}		{$userNode['Aro']['parent_id']}		{$userNode['Aro']['model']}.{$userNode['Aro']['foreign_key']}	{$userNode['Aro']['alias']}");
+		$this->out("{$user['Aros']['id']}		{$user['Aros']['parent_id']}		{$user['Aros']['model']}.{$user['Aros']['foreign_key']}	{$user['Aros']['alias']}");
 		$this->out('# Aros (role)');
 		$this->out("id		parent		model		alias");
 		$this->out("{$roleNode['Aro']['id']}		{$roleNode['Aro']['parent_id']}		{$roleNode['Aro']['model']}.{$roleNode['Aro']['foreign_key']}		{$roleNode['Aro']['alias']}");
+	}
+	function _change_cli(){
+		$this->_userSync($this->settings['login'], $this->settings['roleName'], array('silent' => true, 'silent_enable' => true));
 	}
 	function _change(){
 		$user = $this->_getUser($this->settings['login']);
@@ -212,10 +214,17 @@ class RoleShell extends Shell {
 	 */
 	function _getNode($name){
 		if(is_array($name)){
-			$node = $this->Aro->findByForeignKey($name['Users']['id']);
+			$node = $this->Aro->find('first',array('conditions' => array(
+				'foreign_key' => $name['Users']['id'],
+				'model' => 'Users'
+			)));
 			$name = "{$name['Users']['login']}[{$name['Users']['id']}]";
 		}elseif(is_numeric($name)){
 			$node = $this->Aro->findById($name);
+			// if(!$node){
+			// 	$this->
+			// 	$node->
+			// }
 		}else{
 			$node = $this->Aro->findByAlias(strtolower($name));
 		}
@@ -225,16 +234,32 @@ class RoleShell extends Shell {
 		return $node;
 	}
 
-	function _userSync($user, $roleId){
-		$tmpUsers = $this->Users->findById($user['Users']['id']);
+	function _userSync($user, $roleId, $options){
+		$defaultOptions = array(
+			'silent' => false,
+			'silent_enable' => true,
+			'create' => true
+		);
+		$options = array_merge($defaultOptions, $options);
+		if(!is_array($user)){
+			$tmpUsers = $this->Users->findByLogin($user);
+		}else{
+			$tmpUsers = $this->Users->findById($user['Users']['id']);
+		}
 		if($tmpUsers){
-			var_dump($tmpUsers);
-			$this->Users->delete($user['Users']['id']);
+			if(!$options['silent']){
+				var_dump($tmpUsers);
+			}
+			//$this->Users->delete($tmpUsers['Users']['id']);
 			$tmpUsers['Users']['role_id'] = $roleId;
 			if($tmpUsers['Users']['enable'] == false){
-				$options = $this->in("[question] force set `enable` = true for this user ?:", array('y', 'n'), 'n');
-				if(strtolower($options) === 'y'){
-					$tmpUsers['Users']['enable'] = true;
+				if($options['silet']){
+					$tmpUsers['Users']['enable'] = $options['silet_enable'];
+				}else{
+					$options = $this->in("[question] force set `enable` = true for this user ?:", array('y', 'n'), 'n');
+					if(strtolower($options) === 'y'){
+						$tmpUsers['Users']['enable'] = true;
+					}
 				}
 			}
 			unset($tmpUsers['Roles']);
@@ -242,9 +267,13 @@ class RoleShell extends Shell {
 			$this->Users->create($tmpUsers);
 			$saveUser = $this->Users->save($tmpUsers);
 			if($saveUser){
-				var_dump($saveUser);
+				if(!$options['silent']){
+					var_dump($saveUser);
+				}
 				$this->out('[ok] user row recreate');
-				return $this->_getNode($user);
+				if(!$options['silent']){
+					return $this->_getNode($user);
+				}
 			}else{
 				$this->err('[error] node create fail, try again');
 				exit;
